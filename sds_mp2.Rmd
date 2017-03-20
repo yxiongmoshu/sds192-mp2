@@ -1,0 +1,12 @@
+---
+title: "sds_mp2"
+author: "Vera Bao, Jing Xia, Yaqi Xiong"
+date: "3/20/2017"
+output: html_document
+---
+
+```{r}
+#load("~/sds 192-mp2/contributions.rda")
+library(tidyverse)
+glimpse(contributions)
+```
