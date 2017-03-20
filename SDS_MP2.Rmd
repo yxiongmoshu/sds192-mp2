@@ -1,0 +1,10 @@
+---
+title: "GP2"
+output: html_document
+---
+```{r}
+library(tidyverse)
+load("contributions.rda")
+glimpse(contributions)
+```
+
