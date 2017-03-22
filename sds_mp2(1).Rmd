@@ -7,13 +7,14 @@ output: html_document
 
 ```{r,echo = FALSE, message=FALSE,warning=FALSE}
 load("contributions.rda")
+#installed.packages("ggthemes")
 library(tidyverse)
 library(dplyr)
 library(ggplot2)
-library(ggthemes)
+#library(ggthemes)
 ```
 
-```{r}
+```{r,message=FALSE,warning=FALSE}
 first_five_state <- contributions %>%
   select(state,  transaction_amt) %>%
   group_by(state) %>%
@@ -22,7 +23,7 @@ first_five_state <- contributions %>%
   filter(row_number() <= 5L) # 5 states with largest contribution amounts
 ```
 
-```{r}
+```{r,message=FALSE,warning=FALSE}
 contribute_most_city <- function(state_arg) {
   contributions %>%
     filter(state == state_arg) %>%
@@ -34,7 +35,7 @@ contribute_most_city <- function(state_arg) {
 } # Function of the city with most contributions in top five states
 ```
 
-```{r}
+```{r,message=FALSE,warning=FALSE}
 contribute_most_city(state_arg = "VA") # Alexandria
 contribute_most_city(state_arg = "DC") # Washington
 contribute_most_city(state_arg = "MD") # Towson
@@ -43,7 +44,7 @@ contribute_most_city(state_arg = "IL") # Chicago
 # the city with most contributions in top five states
 ```
 
-```{r}
+```{r,message=FALSE,warning=FALSE}
 first_five_city <- contributions %>%
   select(city, state, transaction_amt) %>%
   filter(city == "ALEXANDRIA" |city == "WASHINGTON" | city == "TOWSON" | city == "SHERMAN OAKS" | city == "CHICAGO") %>%
@@ -52,7 +53,7 @@ first_five_city <- contributions %>%
 first_five_city$state <- c("VA","IL","CA","MD","DC") # dataframe of the five cities that contribute the most from each of the five states with the highest contributions
 ```
 
-```{r}
+```{r,message=FALSE,warning=FALSE}
 final <- first_five_state %>%
   inner_join(first_five_city, by = "state") %>%
   mutate(state_total_scale = state_total/1000000) %>%
@@ -60,7 +61,7 @@ final <- first_five_state %>%
            # final dataframe with the transaction amount of the top 5 states & the top city of each
 ```
 
-```{r}
+```{r,message=FALSE,warning=FALSE}
 ggplot(data = final, aes(x = state, y = city_total_scale,group = 1,label = 
                            city)) +
   geom_line(colour="red",linetype = "dotdash",size = 1) +
@@ -80,3 +81,6 @@ ggplot(data = final, aes(x = state, y = city_total_scale,group = 1,label =
   annotate("text", x = "MD", y = 70, label = "City",parse=TRUE, 
            colour = "red", size = 5)
 ```
+
+There are two curves representing the transaction amount made by the top five states and the cities that contribute the most in these five states. The red dotted curve represents the transaction amount made by the cities and it lies below the one representing the state. From the plot, we can tell that Virginia is the state that contribute the most, and Washington DC is the city that contributes the most. Illinois is the state that contributes the less among the top five states. 
+
