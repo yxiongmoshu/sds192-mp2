@@ -1,0 +1,88 @@
+---
+title: "sds_mp2"
+author: "Vera Bao, Jing Xia, Yaqi Xiong"
+date: "3/20/2017"
+output: html_document
+---
+
+```{r,echo = FALSE, message=FALSE,warning=FALSE}
+load("contributions.rda")
+#installed.packages("ggthemes")
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+#library(ggthemes)
+```
+
+This graph describes the transaction amount (measured in millions) made by the top 5 states and the cities that contribute the most among these 5 states. 
+
+```{r,message=FALSE,warning=FALSE}
+first_five_state <- contributions %>%
+  select(state,  transaction_amt) %>%
+  group_by(state) %>%
+  summarise(state_total = sum(transaction_amt)) %>%
+  arrange(desc(state_total)) %>%
+  filter(row_number() <= 5L) # 5 states with largest contribution amounts
+```
+
+```{r,message=FALSE,warning=FALSE}
+contribute_most_city <- function(state_arg) {
+  contributions %>%
+    filter(state == state_arg) %>%
+    group_by(city) %>%
+    summarize(total1 = sum(transaction_amt)) %>%
+    arrange(desc(total1)) %>%
+    head(1) %>%
+    select(city)
+} # Function of the city with most contributions in top five states
+```
+
+```{r,message=FALSE,warning=FALSE}
+contribute_most_city(state_arg = "VA") # Alexandria
+contribute_most_city(state_arg = "DC") # Washington
+contribute_most_city(state_arg = "MD") # Towson
+contribute_most_city(state_arg = "CA") # Sherman Oaks
+contribute_most_city(state_arg = "IL") # Chicago
+# the city with most contributions in top five states
+```
+
+```{r,message=FALSE,warning=FALSE}
+first_five_city <- contributions %>%
+  select(city, state, transaction_amt) %>%
+  filter(city == "ALEXANDRIA" |city == "WASHINGTON" | city == "TOWSON" | city == "SHERMAN OAKS" | city == "CHICAGO") %>%
+  group_by(city) %>%
+  summarise(city_total = sum(transaction_amt))
+first_five_city$state <- c("VA","IL","CA","MD","DC") # dataframe of the five cities that contribute the most from each of the five states with the highest contributions
+```
+
+```{r,message=FALSE,warning=FALSE}
+final <- first_five_state %>%
+  inner_join(first_five_city, by = "state") %>%
+  mutate(state_total_scale = state_total/1000000) %>%
+  mutate(city_total_scale = city_total/1000000)
+           # final dataframe with the transaction amount of the top 5 states & the top city of each
+```
+
+```{r,message=FALSE,warning=FALSE}
+ggplot(data = final, aes(x = state, y = city_total_scale,group = 1,label = 
+                           city)) +
+  geom_line(colour="red",linetype = "dotdash",size = 1) +
+  geom_line(aes(y = state_total_scale, group=1),colour="steelblue", size =1) +   ggtitle("5 States & the Corresponding Top City with Highest Transcation Amount") +
+  labs(y = "Transaction Amount (Millions)") +
+  labs(x = "States") + 
+  geom_text(size=4, vjust= 0.6, hjust = -0.1,colour="black") +
+  theme(plot.title = element_text(color="black", face="bold",  hjust=0, size = 16), 
+        axis.text.x = element_text(colour="black",size=10, face = "bold" ), 
+        axis.text.y = element_text(colour="black",size=10, face = "bold" )) +
+  geom_segment(aes(x = "MD", y=350, xend = "MD" , yend = 290), show.legend = 
+                 FALSE, color="steelblue",linetype=1, arrow=arrow()) +
+  geom_segment(aes(x = "MD", y=100, xend = "MD" , yend = 160), show.legend = 
+                 FALSE, color="red",linetype=1, arrow=arrow()) +
+  annotate("text", x = "MD", y = 380, label = "State",parse=TRUE, 
+           colour = "steelblue", size = 5) +
+  annotate("text", x = "MD", y = 70, label = "City",parse=TRUE, 
+           colour = "red", size = 5)
+```
+
+There are two curves representing the transaction amount made by the top five states and the cities that contribute the most in these five states. The red dotted curve represents the transaction amount made by the cities and it lies below the one representing the state. From the plot, we can tell that Virginia is the state that contributes the most, and Washington DC is the city that contributes the most. Illinois is the state that contributes the least among the top five states. There are not large differences between the contribution made by the state and the city, which means these cities contribute a significant proportion of the total transaction amount of each state. 
+
